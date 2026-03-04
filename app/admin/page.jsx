@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { serif, sans } from "@/lib/data";
 import { getConfig, saveConfig, resetConfig, DEFAULT_CONFIG } from "@/lib/config";
 
-const CREDS = { user: "admin", pass: "admin123" };
 
 /* ─── File upload helper ─── */
 async function uploadFile(file) {
@@ -51,17 +50,25 @@ const S = {
 
 /* ─── Login ─── */
 function Login({ onLogin }) {
-  const [u, setU] = useState(""); const [p, setP] = useState(""); const [err, setErr] = useState("");
-  const go = () => { if (u === CREDS.user && p === CREDS.pass) onLogin(); else setErr("Invalid credentials."); };
+  const [u, setU] = useState(""); const [p, setP] = useState(""); const [err, setErr] = useState(""); const [loading, setLoading] = useState(false);
+  const go = async () => {
+    setLoading(true); setErr("");
+    try {
+      const res = await fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user: u, pass: p }) });
+      const data = await res.json();
+      if (data.ok) onLogin(); else setErr(data.error || "Invalid credentials.");
+    } catch { setErr("Login failed. Please try again."); }
+    setLoading(false);
+  };
   return (
     <div style={{ minHeight: "100vh", background: "#f0ece7", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div style={{ background: "white", border: "1px solid #e5e2dd", borderRadius: 24, padding: 40, width: "100%", maxWidth: 380, textAlign: "center" }}>
         <h1 style={{ fontFamily: serif, fontSize: "1.8rem", fontWeight: 300, marginBottom: 4 }}>Admin Login</h1>
-        <p style={{ fontSize: 12, color: "#999", marginBottom: 24, fontFamily: sans }}>Default: admin / admin123</p>
+        <p style={{ fontSize: 12, color: "#999", marginBottom: 24, fontFamily: sans }}>Sign in to manage your portfolio</p>
         {err && <div style={{ background: "#fdecea", color: "#c0392b", padding: "8px 12px", borderRadius: 8, fontSize: 13, marginBottom: 12, fontFamily: sans }}>{err}</div>}
         <input style={{ ...S.inp, marginBottom: 10 }} placeholder="Username" value={u} onChange={e => setU(e.target.value)} />
         <input style={{ ...S.inp, marginBottom: 10 }} type="password" placeholder="Password" value={p} onChange={e => setP(e.target.value)} onKeyDown={e => e.key === "Enter" && go()} />
-        <button onClick={go} style={{ width: "100%", padding: 12, background: "#1a1a1a", color: "white", border: "none", borderRadius: 10, fontSize: 13, cursor: "pointer", fontFamily: sans, letterSpacing: ".08em" }}>Sign In</button>
+        <button onClick={go} disabled={loading} style={{ width: "100%", padding: 12, background: "#1a1a1a", color: "white", border: "none", borderRadius: 10, fontSize: 13, cursor: loading ? "wait" : "pointer", fontFamily: sans, letterSpacing: ".08em", opacity: loading ? .6 : 1 }}>{loading ? "Signing in..." : "Sign In"}</button>
       </div>
     </div>
   );
@@ -338,7 +345,9 @@ function StatsTab({ cfg, setCfg }) {
 /* ─── Contact Tab ─── */
 function ContactTab({ cfg, setCfg }) {
   const upG = (k, v) => setCfg(c => ({ ...c, general: { ...c.general, [k]: v } }));
+  const upF = (k, v) => setCfg(c => ({ ...c, footer: { ...c.footer, [k]: v } }));
   const g = cfg.general;
+  const f = cfg.footer;
   return (
     <div>
       <h2 style={S.h2}>Contact & Booking</h2>
@@ -353,6 +362,12 @@ function ContactTab({ cfg, setCfg }) {
       <div style={S.card}>
         <label style={S.label}>Copyright Name (footer)</label>
         <input style={S.inp} value={g.copyrightName} onChange={e => upG("copyrightName", e.target.value)} />
+      </div>
+      <div style={S.card}>
+        <p style={{ ...S.label, marginBottom: 14 }}>Footer Text</p>
+        <div style={{ marginBottom: 12 }}><label style={S.label}>Heading</label><input style={S.inp} value={f.heading} onChange={e => upF("heading", e.target.value)} placeholder="Stay connected" /></div>
+        <div style={{ marginBottom: 12 }}><label style={S.label}>Description</label><input style={S.inp} value={f.description} onChange={e => upF("description", e.target.value)} placeholder="Join the newsletter for updates on new work." /></div>
+        <div><label style={S.label}>Tagline</label><input style={S.inp} value={f.tagline} onChange={e => upF("tagline", e.target.value)} placeholder="Authentic content that converts." /></div>
       </div>
     </div>
   );
@@ -373,10 +388,18 @@ function SiteSectionsTab({ cfg, setCfg }) {
   ];
 
   const texts = [
+    { key: "brandsTag", label: "Brands Section Tag", placeholder: "Trusted By" },
     { key: "brandsTitle", label: "Brands Section Title", placeholder: "Brands that trust our content." },
+    { key: "analyticsTag", label: "Analytics Section Tag", placeholder: "Analytics" },
     { key: "analyticsTitle", label: "Analytics Section Title", placeholder: "Results that speak." },
+    { key: "analyticsDisclaimer", label: "Analytics Disclaimer", placeholder: "more analytics available on request *" },
+    { key: "testimonialsTag", label: "Testimonials Section Tag", placeholder: "Testimonials" },
+    { key: "testimonialsCount", label: "Testimonials Count", placeholder: "100+" },
+    { key: "testimonialsCta", label: "Testimonials Button Text", placeholder: "Read all reviews" },
+    { key: "bookMeTag", label: "Book Me Section Tag", placeholder: "Book Me" },
     { key: "bookMeTitle", label: "Book Me Title", placeholder: "Let\u2019s create together." },
     { key: "bookMeDescription", label: "Book Me Description", placeholder: "Book a discovery call to discuss your brand\u2019s content needs." },
+    { key: "bookMeButton", label: "Book Me Button Text", placeholder: "Book a Call" },
   ];
 
   return (
