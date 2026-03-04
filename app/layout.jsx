@@ -1,11 +1,10 @@
-import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Playfair_Display_SC, DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const cormorant = Cormorant_Garamond({
+const playfair = Playfair_Display_SC({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-serif",
+  weight: ["400", "700", "900"],
+  variable: "--font-display",
 });
 
 const dmSans = DM_Sans({
@@ -15,20 +14,17 @@ const dmSans = DM_Sans({
 });
 
 export const metadata = {
-  title: "Diana Garcia Studio",
-  description: "UGC Creator — Authentic & premium content that converts and engages.",
+  title: "Klaudia Milcz — UGC Creator",
+  description: "Authentic & premium content that converts and engages.",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
       <body>
-        <div className="bg-mesh" aria-hidden="true">
-          <div className="bg-mesh-orb" />
-          <div className="bg-mesh-orb" />
-          <div className="bg-mesh-orb" />
+        <div className="site-container">
+          {children}
         </div>
-        {children}
       </body>
     </html>
   );

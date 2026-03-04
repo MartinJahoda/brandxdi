@@ -1,23 +1,33 @@
 "use client";
 import { useState, useEffect } from "react";
-import HeroCarousel from "@/components/HeroCarousel";
+import HamburgerNav from "@/components/HamburgerNav";
 import PhoneCard from "@/components/PhoneCard";
 import Fade from "@/components/Fade";
 import SectionHeader from "@/components/SectionHeader";
-import { ArrowUR, IcoIg, IcoTt, IcoMail } from "@/components/icons";
-import { serif, sans } from "@/lib/data";
+import BrandLogoGrid from "@/components/BrandLogoGrid";
+import TestimonialCard from "@/components/TestimonialCard";
+import ImageGrid from "@/components/ImageGrid";
+import TravelBanner from "@/components/TravelBanner";
+import StickyCTA from "@/components/StickyCTA";
+import VideoLightbox from "@/components/VideoLightbox";
+import AnimatedStat from "@/components/AnimatedStat";
+import CategoryFilter from "@/components/CategoryFilter";
+import ContactForm from "@/components/ContactForm";
+import BackToTop from "@/components/BackToTop";
+import Skeleton from "@/components/Skeleton";
+import { IcoIg, IcoLinkedIn, IcoYouTube, IcoTt } from "@/components/icons";
+import { display, sans } from "@/lib/data";
 import { getConfig, DEFAULT_CONFIG } from "@/lib/config";
 
 export default function HomePage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [showCal, setShowCal] = useState(false);
   const [cfg, setCfg] = useState(DEFAULT_CONFIG);
+  const [loading, setLoading] = useState(true);
+  const [lightboxVideo, setLightboxVideo] = useState(null);
+  const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
     setCfg(getConfig());
-    const fn = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", fn);
-    return () => window.removeEventListener("scroll", fn);
+    setLoading(false);
   }, []);
 
   const g = cfg.general;
@@ -26,27 +36,36 @@ export default function HomePage() {
     return (
       <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 32 }}>
         <div style={{ maxWidth: 520 }}>
-          <h1 style={{ fontFamily: serif, fontSize: "clamp(2.4rem,7vw,4.5rem)", fontWeight: 300, lineHeight: 1, color: "#1a1a1a", marginBottom: 12 }}>
-            {g.name.toUpperCase()} <span style={{ color: "#b5b0a8" }}>{g.studioSuffix}</span>
+          <h1 style={{ fontFamily: display, fontSize: "clamp(2rem,6vw,3.5rem)", fontWeight: 400, letterSpacing: ".06em", color: "#1a1a1a", marginBottom: 12 }}>
+            {g.name.toUpperCase()}
           </h1>
           <div style={{ width: 40, height: 1, background: "#ccc", margin: "20px auto" }} />
           <p style={{ fontSize: 14, color: "#888", lineHeight: 1.7, fontFamily: sans, marginBottom: 8 }}>
             {g.comingSoonMessage}
           </p>
-          <p style={{ fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", color: "#b5b0a8", fontFamily: sans, marginBottom: 32 }}>
+          <p style={{ fontSize: 12, letterSpacing: ".14em", textTransform: "uppercase", color: "#b5b0a8", fontFamily: sans }}>
             {g.comingSoonLabel}
           </p>
-          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            {g.instagramUrl && g.instagramUrl !== "#" && (
-              <a href={g.instagramUrl} style={{ fontSize: 12, color: "#999", fontFamily: sans, letterSpacing: ".08em" }}>Instagram</a>
-            )}
-            {g.tiktokUrl && g.tiktokUrl !== "#" && (
-              <a href={g.tiktokUrl} style={{ fontSize: 12, color: "#999", fontFamily: sans, letterSpacing: ".08em" }}>TikTok</a>
-            )}
-            {g.email && (
-              <a href={`mailto:${g.email}`} style={{ fontSize: 12, color: "#999", fontFamily: sans, letterSpacing: ".08em" }}>{g.email}</a>
-            )}
-          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const scrollSections = cfg.sections.filter(s => s.layout === "scroll");
+  const gridSections = cfg.sections.filter(s => s.layout === "grid");
+  const halfSections = cfg.sections.filter(s => s.layout === "grid-half");
+
+  const filterCategories = [
+    ...gridSections.map(s => ({ id: s.id, title: s.title })),
+    ...halfSections.map(s => ({ id: s.id, title: s.title })),
+  ];
+
+  if (loading) {
+    return (
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
+        <Skeleton height={400} borderRadius={0} />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, maxWidth: 600, margin: "32px auto" }}>
+          {[...Array(4)].map((_, i) => <Skeleton key={i} height={60} />)}
         </div>
       </div>
     );
@@ -54,69 +73,104 @@ export default function HomePage() {
 
   return (
     <>
-      <nav className="nav-pill" style={{ position: "fixed", top: 16, left: "50%", zIndex: 100, width: "calc(100% - 48px)", maxWidth: 920, padding: "13px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", background: scrolled ? "rgba(14,14,14,.96)" : "rgba(20,20,20,.84)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 100, boxShadow: scrolled ? "0 8px 32px rgba(0,0,0,.28)" : "0 4px 20px rgba(0,0,0,.18)", transition: "background .4s ease, box-shadow .4s ease" }}>
-        <a href="#" style={{ fontFamily: serif, fontSize: "1.1rem", fontWeight: 400, letterSpacing: ".06em", color: "white" }}>{g.name}</a>
-        <div className="nav-links-row" style={{ display: "flex", gap: 28, alignItems: "center" }}>
-          {["Work", "About", "Contact"]
-            .filter(l => !(l === "About" && !cfg.sectionToggles.analytics))
-            .map(l => (
-              <a key={l} className="nav-link" href={"#" + l.toLowerCase().replace(" ", "-")} style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", fontWeight: 400, fontFamily: sans }}>{l}</a>
-          ))}
-          {cfg.sectionToggles.bookMe && (
-            <a href="#book-me" className="btn-cta" style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", fontFamily: sans, background: "white", color: "#1a1a1a", padding: "8px 18px", borderRadius: 100, fontWeight: 500 }}>Book Me</a>
-          )}
-        </div>
-      </nav>
+      <HamburgerNav />
+      {cfg.sectionToggles.stickyCTA && <StickyCTA text={g.ctaButtonText} />}
+      <BackToTop />
+      {lightboxVideo && <VideoLightbox videoSrc={lightboxVideo} onClose={() => setLightboxVideo(null)} />}
 
-      <main className="main-wrap" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 16px" }}>
-        <div className="hero-title-wrap" style={{ background: "white", borderRadius: 24, marginTop: 92, padding: 24 }}>
-          <h1 className="hero-title" style={{ fontFamily: serif, fontSize: "clamp(2.8rem,9vw,6.5rem)", lineHeight: .9, fontWeight: 300, letterSpacing: "-.02em", padding: "24px 0" }}>
-            {g.name.toUpperCase()} <span style={{ color: "#b5b0a8" }}>{g.studioSuffix}</span>
+      {/* ── Hero ── */}
+      <section id="hero" style={{ position: "relative", width: "100%", overflow: "hidden", minHeight: "85vh" }}>
+        <img
+          src={g.heroImage}
+          alt={g.name}
+          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }}
+        />
+        {g.heroVideo && (
+          <video
+            autoPlay muted loop playsInline
+            poster={g.heroImage}
+            style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }}
+          >
+            <source src={g.heroVideo} type="video/mp4" />
+          </video>
+        )}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,.65))" }} />
+        <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", justifyContent: "flex-end", minHeight: "85vh", padding: "0 32px 48px", color: "white", textAlign: "center", alignItems: "center" }}>
+          <h1 style={{ fontFamily: display, fontSize: "clamp(2rem, 5vw, 3.2rem)", fontWeight: 400, letterSpacing: ".08em", marginBottom: 4 }}>
+            {g.name.toUpperCase()}
           </h1>
-        </div>
-
-        <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24, padding: 16, marginTop: 16 }}>
-          <div className="hero-carousel-wrap" style={{ height: 580 }}><HeroCarousel images={cfg.heroImages} /></div>
-          <div className="hero-sidebar" style={{ display: "flex", flexDirection: "column", gap: 14, height: 580 }}>
-            <Fade>
-              <div className="hero-sidebar-card" style={{ border: "1px solid #e5e2dd", background: "white", borderRadius: 24, padding: 20 }}>
-                <h2 style={{ fontSize: "1.1rem", fontWeight: 600, fontFamily: sans }}>{g.name}</h2>
-                <p style={{ fontSize: 13, color: "#777", marginTop: 2, fontFamily: sans }}>{g.title}</p>
-                <p style={{ fontSize: 13, lineHeight: 1.7, color: "#555", marginTop: 12, fontFamily: sans }}>{g.bio}</p>
-              </div>
-            </Fade>
-            <div className="hero-profile-img" style={{ flex: 1, minHeight: 0, borderRadius: 24, overflow: "hidden", border: "1px solid #e5e2dd" }}>
-              <img src={g.profileImg} alt={g.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </div>
-            <Fade delay={.1}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {[{ label: "Instagram", icon: <IcoIg />, href: g.instagramUrl }, { label: "TikTok", icon: <IcoTt />, href: g.tiktokUrl }, { label: "Contact Me", icon: <IcoMail />, href: "#contact", dark: true }].map(s => (
-                  <a key={s.label} href={s.href} className="social-link" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 16px", borderRadius: 16, border: s.dark ? "none" : "1px solid #e5e2dd", background: s.dark ? "#1a1a1a" : "white", color: s.dark ? "white" : "#3a3a3a", fontSize: 13, fontWeight: 500, fontFamily: sans }}>
-                    <span>{s.label}</span>
-                    <span style={{ opacity: s.dark ? 1 : .5 }}>{s.icon}</span>
-                  </a>
-                ))}
-              </div>
-            </Fade>
+          <p style={{ fontFamily: display, fontSize: "clamp(.9rem, 1.8vw, 1.1rem)", fontWeight: 400, letterSpacing: ".18em", marginBottom: 8 }}>
+            {g.title.toUpperCase()}
+          </p>
+          <p style={{ fontFamily: sans, fontSize: 14, fontStyle: "italic", opacity: .85, marginBottom: 8 }}>
+            {g.experienceText}
+          </p>
+          <p style={{ fontFamily: sans, fontSize: 11, letterSpacing: ".12em", opacity: .75, whiteSpace: "pre-line", lineHeight: 1.6, maxWidth: 480 }}>
+            {g.tagline}
+          </p>
+          {g.bio && (
+            <p style={{ fontFamily: sans, fontSize: 12, fontStyle: "italic", opacity: .65, marginTop: 10, maxWidth: 440, lineHeight: 1.6 }}>
+              {g.bio}
+            </p>
+          )}
+          <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 20 }}>
+            {g.linkedinUrl && g.linkedinUrl !== "#" && (
+              <a href={g.linkedinUrl} style={{ width: 36, height: 36, borderRadius: "50%", border: "1px solid rgba(255,255,255,.5)", background: "rgba(255,255,255,.1)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", transition: "background .2s" }}>
+                <IcoLinkedIn />
+              </a>
+            )}
+            {g.instagramUrl && g.instagramUrl !== "#" && (
+              <a href={g.instagramUrl} style={{ width: 36, height: 36, borderRadius: "50%", border: "1px solid rgba(255,255,255,.5)", background: "rgba(255,255,255,.1)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", transition: "background .2s" }}>
+                <IcoIg />
+              </a>
+            )}
+            {g.youtubeUrl && g.youtubeUrl !== "#" && (
+              <a href={g.youtubeUrl} style={{ width: 36, height: 36, borderRadius: "50%", border: "1px solid rgba(255,255,255,.5)", background: "rgba(255,255,255,.1)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", transition: "background .2s" }}>
+                <IcoYouTube />
+              </a>
+            )}
+            {g.tiktokUrl && g.tiktokUrl !== "#" && (
+              <a href={g.tiktokUrl} style={{ width: 36, height: 36, borderRadius: "50%", border: "1px solid rgba(255,255,255,.5)", background: "rgba(255,255,255,.1)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", transition: "background .2s" }}>
+                <IcoTt />
+              </a>
+            )}
           </div>
         </div>
+      </section>
 
+      <main>
+        {/* ── Trusted By ── */}
         {cfg.sectionToggles.brands && (
-          <section className="sec-resp" style={{ background: "white", borderRadius: 24, marginTop: 32, padding: "48px 24px" }}>
-            <SectionHeader tag={cfg.sectionText.brandsTag} count={cfg.brands.length} title={cfg.sectionText.brandsTitle} />
-            <Fade delay={.1}>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", maxWidth: 1000, margin: "0 auto 40px" }}>
-                {cfg.brands.map((b, i) => (
-                  <span key={i} className="brand-tag" style={{ padding: "8px 18px", borderRadius: 100, background: "#f5f3f0", border: "1px solid #e9e5e0", fontSize: 12, letterSpacing: ".06em", color: "#5a5550", fontFamily: sans }}>{b}</span>
-                ))}
+          <section style={{ padding: "48px 24px 32px", textAlign: "center" }}>
+            <SectionHeader title={cfg.sectionText.brandsTitle} />
+            <BrandLogoGrid brands={cfg.brands} moreText={cfg.sectionText.brandsMore} />
+          </section>
+        )}
+
+        {/* ── Stats ── */}
+        <section style={{ padding: "32px 24px" }}>
+          <div className="stats-row" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, maxWidth: 600, margin: "0 auto", textAlign: "center" }}>
+            {cfg.stats.map((s, i) => (
+              <div key={i}>
+                <AnimatedStat value={s.v} />
+                <p style={{ fontSize: 10, letterSpacing: ".12em", color: "#999", marginTop: 4, fontFamily: sans, whiteSpace: "pre-line", lineHeight: 1.4 }}>{s.l}</p>
               </div>
-            </Fade>
-            <Fade delay={.15}>
-              <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
-                {cfg.stats.map((s, i) => (
-                  <div key={i}>
-                    <p style={{ fontFamily: serif, fontSize: "clamp(1.8rem,3vw,2.8rem)", fontWeight: 300, fontStyle: "italic", color: "#1a1a1a", lineHeight: 1 }}>{s.v}</p>
-                    <p style={{ fontSize: 10, letterSpacing: ".2em", color: "#999", marginTop: 6, fontFamily: sans }}>{s.l}</p>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Analytics ── */}
+        {cfg.sectionToggles.analytics && (
+          <section id="analytics" style={{ padding: "48px 24px", background: "#fafafa" }}>
+            <SectionHeader title={cfg.sectionText.analyticsTitle} sub={cfg.sectionText.analyticsDisclaimer} />
+            <Fade delay={.1}>
+              <div className="analytics-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, maxWidth: 700, margin: "0 auto" }}>
+                {cfg.analytics.map((a, i) => (
+                  <div key={i} style={{ textAlign: "center" }}>
+                    <div style={{ borderRadius: 8, overflow: "hidden", background: "#eee", aspectRatio: "4/3" }}>
+                      <img src={a.img} alt={a.caption} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+                    <p style={{ fontSize: 10, letterSpacing: ".1em", color: "#777", marginTop: 6, fontFamily: sans }}>{a.caption}</p>
                   </div>
                 ))}
               </div>
@@ -124,113 +178,152 @@ export default function HomePage() {
           </section>
         )}
 
-        {cfg.sections.map((sec, si) => (
-          <section key={sec.id} id={si === 0 ? "work" : undefined} className="sec-resp" style={{ background: si % 2 === 0 ? "white" : "#f5f3f0", borderRadius: 24, marginTop: 32, padding: "48px 24px", overflow: "hidden" }}>
-            <SectionHeader tag={sec.title} count={sec.items.length} title={sec.title} sub={sec.sub} />
+        {/* ── Scroll Video Sections (Recent Work, etc.) ── */}
+        {scrollSections.map((sec, si) => (
+          <section key={sec.id} id={si === 0 ? "work" : undefined} style={{ padding: sec.title ? "48px 0 32px" : "0 0 32px", overflow: "hidden" }}>
+            {sec.title && (
+              <div style={{ padding: "0 24px" }}>
+                <SectionHeader title={sec.title} sub={sec.sub} />
+              </div>
+            )}
             <Fade delay={.1}>
-              <div className="hs" style={{ display: "flex", gap: 20, overflowX: "auto", padding: "20px 0 24px", scrollSnapType: "x mandatory" }}>
-                {sec.items.map(item => <PhoneCard key={item.id} item={item} />)}
+              <div className="hs" style={{ overflowX: "auto", scrollSnapType: "x mandatory" }}>
+                <div style={{ display: "flex", gap: 16, padding: "16px 24px 24px", width: "max-content", margin: "0 auto" }}>
+                  {sec.items.map(item => <PhoneCard key={item.id} item={item} onOpen={() => setLightboxVideo(item.video)} />)}
+                </div>
               </div>
             </Fade>
           </section>
         ))}
 
-        {cfg.sectionToggles.analytics && (
-          <section id="about" className="sec-resp" style={{ background: "white", borderRadius: 24, marginTop: 32, padding: "48px 24px" }}>
-            <SectionHeader tag={cfg.sectionText.analyticsTag} count={cfg.analytics.length} title={cfg.sectionText.analyticsTitle} />
-            <p style={{ fontSize: 12, color: "#aaa", fontStyle: "italic", letterSpacing: ".1em", marginBottom: 36, marginTop: -8, fontFamily: sans }}>{cfg.sectionText.analyticsDisclaimer}</p>
-            <Fade delay={.1}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
-                {cfg.analytics.map((a, i) => (
-                  <div key={i} className="analytic-card" style={{ background: "#f5f3f0", borderRadius: 20, padding: 28, border: "1px solid #e9e5e0", textAlign: "center" }}>
-                    <p style={{ fontFamily: serif, fontSize: "2.5rem", fontWeight: 300, color: "#1a1a1a" }}>{a.v}</p>
-                    <p style={{ fontSize: 10, letterSpacing: ".18em", color: "#999", textTransform: "uppercase", marginBottom: 4, fontFamily: sans }}>{a.l}</p>
-                    <p style={{ fontSize: 13, color: "#aaa", fontStyle: "italic", fontFamily: sans }}>{a.d}</p>
+        {/* ── Travel Banner ── */}
+        {cfg.sectionToggles.travelBanner && (
+          <section style={{ padding: "0" }}>
+            <TravelBanner data={cfg.travelBanner} />
+          </section>
+        )}
+
+        {/* ── Portfolio Filter + Grid Video Sections ── */}
+        <section style={{ padding: "48px 16px 0", textAlign: "center" }}>
+          <SectionHeader title={cfg.sectionText.portfolioTitle} />
+          <CategoryFilter categories={filterCategories} active={activeFilter} onChange={setActiveFilter} />
+        </section>
+
+        {gridSections
+          .filter(sec => activeFilter === "all" || sec.id === activeFilter)
+          .map(sec => (
+            <section key={sec.id} style={{ padding: "16px 16px 32px" }}>
+              <SectionHeader title={sec.title} />
+              <div className="phone-grid" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 20, padding: "16px 0" }}>
+                {sec.items.map((item, idx) => (
+                  <Fade key={item.id} delay={idx * 0.06}>
+                    <PhoneCard item={item} onOpen={() => setLightboxVideo(item.video)} />
+                  </Fade>
+                ))}
+              </div>
+            </section>
+          ))}
+
+        {/* ── Home + Jewellery (Half Sections Side by Side) ── */}
+        {halfSections.some(s => activeFilter === "all" || s.id === activeFilter) && (
+          <section style={{ padding: "16px 16px 32px" }}>
+            <div className="home-jewellery-row" style={{ display: "flex", gap: 24, justifyContent: "center" }}>
+              {halfSections
+                .filter(sec => activeFilter === "all" || sec.id === activeFilter)
+                .map(sec => (
+                  <div key={sec.id} style={{ flex: "1", maxWidth: 380, textAlign: "center" }}>
+                    <SectionHeader title={sec.title} />
+                    <div style={{ display: "flex", justifyContent: "center", gap: 16, padding: "16px 0" }}>
+                      {sec.items.map((item, idx) => (
+                        <Fade key={item.id} delay={idx * 0.08}>
+                          <PhoneCard item={item} onOpen={() => setLightboxVideo(item.video)} />
+                        </Fade>
+                      ))}
+                    </div>
                   </div>
+                ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── Web Content + YouTube Ads ── */}
+        {cfg.sectionToggles.webContent && cfg.webContent.length > 0 && (
+          <section style={{ padding: "48px 24px 32px" }}>
+            <div className="web-content-row" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24, maxWidth: 600, margin: "0 auto" }}>
+              {cfg.webContent.map((wc, i) => (
+                <div key={i} style={{ textAlign: "center" }}>
+                  <h3 style={{ fontFamily: display, fontSize: "1rem", letterSpacing: ".1em", marginBottom: 12, fontWeight: 400 }}>{wc.title}</h3>
+                  <div style={{ borderRadius: 8, overflow: "hidden", background: "#eee", aspectRatio: "4/3" }}>
+                    <img src={wc.img} alt={wc.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── UGC Images ── */}
+        {cfg.sectionToggles.ugcImages && (
+          <section style={{ padding: "48px 0 32px" }}>
+            <div style={{ padding: "0 24px" }}>
+              <SectionHeader title={cfg.sectionText.ugcImagesTitle} />
+            </div>
+            <ImageGrid images={cfg.ugcImages} />
+          </section>
+        )}
+
+        {/* ── Testimonials ── */}
+        {cfg.sectionToggles.testimonials && (
+          <section id="testimonials" style={{ padding: "48px 24px 48px" }}>
+            <SectionHeader title={cfg.sectionText.testimonialsTitle} sub={cfg.sectionText.testimonialsSubtitle} />
+            <Fade delay={.1}>
+              <div className="testimonials-row" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, maxWidth: 700, margin: "0 auto" }}>
+                {cfg.testimonials.map((t, i) => (
+                  <TestimonialCard key={i} item={t} />
                 ))}
               </div>
             </Fade>
           </section>
         )}
 
-        {cfg.sectionToggles.testimonials && (
-          <section className="testimonial-section" style={{ position: "relative", overflow: "hidden", background: "#1a1a1a", borderRadius: 24, marginTop: 32, padding: "80px 24px", textAlign: "center" }}>
-            <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-              {cfg.heroImages.slice(0, 4).map((src, i) => {
-                const pos = [{ top: 20, left: -24 }, { top: 28, right: -10 }, { bottom: 20, left: 16 }, { bottom: 12, right: 16 }][i] || {};
-                const cls = ["dec-img-a", "dec-img-b", "dec-img-c", "dec-img-d"][i];
-                return <img key={i} src={src} alt="" className={cls} style={{ position: "absolute", width: i === 2 ? 200 : 180, borderRadius: 16, objectFit: "cover", boxShadow: "0 4px 20px rgba(0,0,0,.3)", border: "1px solid rgba(255,255,255,.1)", ...pos, opacity: .45 }} />;
-              })}
-            </div>
-            <Fade>
-              <div style={{ position: "relative", zIndex: 2, maxWidth: 800, margin: "0 auto" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32 }}>
-                  <p style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,.4)", letterSpacing: ".14em", textTransform: "uppercase", fontFamily: sans }}>/{cfg.sectionText.testimonialsTag}</p>
-                  <span style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,.4)", fontFamily: sans }}>({cfg.sectionText.testimonialsCount})</span>
-                </div>
-                <h2 style={{ fontFamily: serif, fontSize: "clamp(1.8rem,5vw,3.5rem)", fontWeight: 300, color: "white", lineHeight: 1.2 }}>{g.testimonialQuote}</h2>
-                <a href="#contact" className="btn-cta" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 32, padding: "12px 24px", borderRadius: 100, background: "white", color: "#1a1a1a", fontSize: 13, fontWeight: 500, fontFamily: sans }}>
-                  {cfg.sectionText.testimonialsCta} <ArrowUR />
-                </a>
-              </div>
-            </Fade>
-          </section>
-        )}
+        {/* ── Footer ── */}
+        <footer id="contact" style={{ position: "relative", background: "#3d4a2f", color: "white", padding: "64px 32px 48px", overflow: "hidden" }}>
+          {cfg.footer.backgroundImage && (
+            <img src={cfg.footer.backgroundImage} alt="" style={{ position: "absolute", right: 0, bottom: 0, height: "100%", width: "50%", objectFit: "cover", opacity: .25 }} />
+          )}
+          <div style={{ position: "relative", zIndex: 2 }}>
+            <h2 style={{ fontFamily: display, fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 400, letterSpacing: ".06em", marginBottom: 32 }}>
+              {cfg.footer.heading}
+            </h2>
+            <div className="footer-inner" style={{ display: "flex", justifyContent: "space-between", gap: 48 }}>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 11, letterSpacing: ".12em", color: "#c4d4a0", fontFamily: sans, marginBottom: 4 }}>{cfg.footer.contactLabel}</p>
+                <p style={{ fontSize: 13, fontFamily: sans, opacity: .8, marginBottom: 20 }}>{cfg.footer.contactSub}</p>
 
-        {cfg.sectionToggles.bookMe && (
-          <section id="book-me" className="book-me-inner" style={{ background: "#1a1a1a", borderRadius: 24, marginTop: 32, padding: "60px 24px", textAlign: "center" }}>
-            <Fade>
-              <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-                  <p style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,.4)", letterSpacing: ".14em", textTransform: "uppercase", fontFamily: sans }}>/{cfg.sectionText.bookMeTag}</p>
-                  <span style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,.4)", fontFamily: sans }}>(01)</span>
-                </div>
-                <h2 style={{ fontFamily: serif, fontSize: "clamp(2rem,5vw,3.5rem)", fontWeight: 300, color: "white", marginBottom: 16 }}>{cfg.sectionText.bookMeTitle}</h2>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,.5)", lineHeight: 1.7, marginBottom: 32, fontFamily: sans }}>{cfg.sectionText.bookMeDescription}</p>
-                {!showCal ? (
-                  <button onClick={() => setShowCal(true)} className="btn-cta" style={{ padding: "14px 40px", background: "white", color: "#1a1a1a", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 12, fontWeight: 500, letterSpacing: ".12em", textTransform: "uppercase", fontFamily: sans }}>{cfg.sectionText.bookMeButton}</button>
-                ) : (
-                  <div style={{ marginTop: 24, borderRadius: 16, overflow: "hidden", background: "white" }}>
-                    <iframe src={g.calendlyUrl} title="Book" style={{ width: "100%", height: 700, border: "none" }} />
-                  </div>
-                )}
-                <p style={{ marginTop: 20, fontSize: 11, color: "rgba(255,255,255,.3)", letterSpacing: ".1em", fontFamily: sans }}>Or email directly — {g.email}</p>
-              </div>
-            </Fade>
-          </section>
-        )}
+                <p style={{ fontSize: 11, letterSpacing: ".12em", color: "#c4d4a0", fontFamily: sans, marginBottom: 4 }}>{cfg.footer.emailLabel}</p>
+                <a href={`mailto:${g.email}`} style={{ fontSize: 13, fontFamily: sans, opacity: .8, display: "block", marginBottom: 20 }}>{g.email}</a>
 
-        <footer id="contact" style={{ marginTop: 32, marginBottom: 16 }}>
-          <div className="footer-inner" style={{ background: "#1a1a1a", borderRadius: 24, color: "white", padding: "48px 32px" }}>
-            <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 32 }}>
-              <div>
-                <h3 style={{ fontFamily: serif, fontSize: "clamp(2rem,4vw,3.5rem)", fontWeight: 300 }}>{g.name.toUpperCase()}</h3>
-                <p style={{ marginTop: 20, fontSize: 13, color: "rgba(255,255,255,.5)", fontFamily: sans }}>{g.email}</p>
+                <p style={{ fontSize: 11, letterSpacing: ".12em", color: "#c4d4a0", fontFamily: sans, marginBottom: 4 }}>{cfg.footer.instagramLabel}</p>
+                <a href={g.instagramUrl} style={{ fontSize: 13, fontFamily: sans, opacity: .8 }}>{cfg.footer.instagramHandle}</a>
+
+                <ContactForm email={g.email} />
               </div>
-              <div>
-                <h4 style={{ fontFamily: serif, fontSize: "1.4rem", fontWeight: 300, marginBottom: 8 }}>{cfg.footer.heading}</h4>
-                <p style={{ fontSize: 12, color: "rgba(255,255,255,.5)", lineHeight: 1.6, fontFamily: sans }}>{cfg.footer.description}</p>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {["About", "Projects", "Blog", "Contact"].map(l => <a key={l} href="#" className="footer-link" style={{ fontSize: 13, color: "rgba(255,255,255,.7)", fontWeight: 500, fontFamily: sans }}>{l}</a>)}
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {[{ l: "TikTok", h: g.tiktokUrl }, { l: "Instagram", h: g.instagramUrl }, { l: "Twitter", h: "#" }].map(s => <a key={s.l} href={s.h} className="footer-link" style={{ fontSize: 13, color: "rgba(255,255,255,.7)", fontWeight: 500, fontFamily: sans }}>{s.l}</a>)}
-                </div>
+              <div style={{ flex: 1 }}>
+                <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
+                  {cfg.services.map((s, i) => (
+                    <li key={i} style={{ fontSize: 12, letterSpacing: ".1em", fontFamily: sans, opacity: .9 }}>
+                      <span style={{ color: "#c4d4a0", marginRight: 8 }}>&bull;</span>{s}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
-            <div className="footer-bottom" style={{ marginTop: 32, paddingTop: 24, borderTop: "1px solid rgba(255,255,255,.08)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,.35)", fontFamily: sans }}>© 2026 {g.copyrightName}. All rights reserved.</p>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,.4)", fontFamily: sans }}>{cfg.footer.tagline}</p>
-              <div style={{ display: "flex", gap: 16 }}>
-                <a href="#" style={{ fontSize: 11, color: "rgba(255,255,255,.5)", fontFamily: sans }}>Privacy</a>
-                <a href="#" style={{ fontSize: 11, color: "rgba(255,255,255,.5)", fontFamily: sans }}>Terms</a>
-              </div>
-            </div>
+            <p style={{ marginTop: 40, fontSize: 10, color: "rgba(255,255,255,.3)", fontFamily: sans, letterSpacing: ".08em" }}>
+              © {new Date().getFullYear()} {g.copyrightName}
+            </p>
           </div>
         </footer>
-      </main>
+    </main>
     </>
   );
 }

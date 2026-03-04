@@ -1,15 +1,16 @@
 import Fade from "./Fade";
-import { serif, sans } from "@/lib/data";
+import { display, sans } from "@/lib/data";
 
-export default function SectionHeader({ tag, count, title, sub }) {
+export default function SectionHeader({ title, sub }) {
+  if (!title) return null;
   return (
     <Fade>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-        <p style={{ fontSize: 11, fontWeight: 500, color: "#999", letterSpacing: ".14em", textTransform: "uppercase", fontFamily: sans }}>/{tag}</p>
-        <span style={{ fontSize: 11, fontWeight: 500, color: "#999", fontFamily: sans }}>({String(count).padStart(2, "0")})</span>
+      <div style={{ textAlign: "center", marginBottom: sub ? 8 : 24 }}>
+        <h2 style={{ fontFamily: display, fontSize: "clamp(1.4rem, 3.5vw, 2rem)", fontWeight: 400, color: "#1a1a1a", letterSpacing: ".08em" }}>{title}</h2>
       </div>
-      <h2 style={{ fontFamily: serif, fontSize: "clamp(2rem,5vw,3.5rem)", fontWeight: 300, color: "#1a1a1a", marginBottom: sub ? 8 : 16 }}>{title}</h2>
-      {sub ? <p style={{ fontSize: 13, color: "#999", marginBottom: 16, fontFamily: sans }}>{sub}</p> : null}
+      {sub && (
+        <p style={{ textAlign: "center", fontSize: 11, color: "#999", letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 24, fontFamily: sans }}>{sub}</p>
+      )}
     </Fade>
   );
 }
