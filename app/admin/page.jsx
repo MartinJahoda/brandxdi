@@ -106,6 +106,11 @@ function GeneralTab({ cfg, setCfg }) {
       )}
 
       <div style={S.card}>
+        <div style={{ marginBottom: 12 }}><label style={S.label}>Browser Tab Title</label><input style={S.inp} value={cfg.siteTitle || ""} onChange={e => setCfg(c => ({ ...c, siteTitle: e.target.value }))} placeholder="e.g. Klaudia Milcz — UGC Creator" /></div>
+        <div style={{ marginBottom: 12 }}><label style={S.label}>SEO Description</label><input style={S.inp} value={cfg.siteDescription || ""} onChange={e => setCfg(c => ({ ...c, siteDescription: e.target.value }))} placeholder="Short description for search engines" /></div>
+      </div>
+
+      <div style={S.card}>
         <div style={S.row}>
           <div style={S.col}><label style={S.label}>Creator Name</label><input style={S.inp} value={g.name} onChange={e => upG("name", e.target.value)} /></div>
           <div style={S.col}><label style={S.label}>Job Title</label><input style={S.inp} value={g.title} onChange={e => upG("title", e.target.value)} /></div>
