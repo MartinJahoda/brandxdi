@@ -21,5 +21,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# server data (admin config persisted on server)
+/data/
+
 # vercel
 .vercel

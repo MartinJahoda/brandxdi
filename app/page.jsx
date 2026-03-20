@@ -17,7 +17,7 @@ import BackToTop from "@/components/BackToTop";
 import Skeleton from "@/components/Skeleton";
 import { IcoIg, IcoLinkedIn, IcoYouTube, IcoTt } from "@/components/icons";
 import { display, sans } from "@/lib/data";
-import { getConfig, DEFAULT_CONFIG } from "@/lib/config";
+import { fetchConfig, DEFAULT_CONFIG } from "@/lib/config";
 
 export default function HomePage() {
   const [cfg, setCfg] = useState(DEFAULT_CONFIG);
@@ -26,8 +26,7 @@ export default function HomePage() {
   const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
-    setCfg(getConfig());
-    setLoading(false);
+    fetchConfig().then(c => { setCfg(c); setLoading(false); });
   }, []);
 
   const g = cfg.general;

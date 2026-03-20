@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { display, sans } from "@/lib/data";
-import { getConfig, saveConfig, resetConfig, DEFAULT_CONFIG } from "@/lib/config";
+import { fetchConfig, saveConfig, resetConfig, DEFAULT_CONFIG } from "@/lib/config";
 
 /* ─── File upload helper ─── */
 async function uploadFile(file) {
@@ -632,10 +632,20 @@ function AdminShell({ onLogout }) {
   const [cfg, setCfg] = useState(null);
   const [savedMsg, setSavedMsg] = useState("");
 
-  useEffect(() => { setCfg(getConfig()); }, []);
+  useEffect(() => { fetchConfig().then(c => setCfg(c)); }, []);
 
-  const save = () => { saveConfig(cfg); setSavedMsg("Saved!"); setTimeout(() => setSavedMsg(""), 2500); };
-  const reset = () => { if (confirm("Reset all settings to defaults?")) { resetConfig(); setCfg(getConfig()); setSavedMsg("Reset!"); setTimeout(() => setSavedMsg(""), 2500); } };
+  const save = async () => {
+    try { await saveConfig(cfg); setSavedMsg("Saved!"); } catch { setSavedMsg("Save failed!"); }
+    setTimeout(() => setSavedMsg(""), 2500);
+  };
+  const reset = async () => {
+    if (confirm("Reset all settings to defaults?")) {
+      await resetConfig();
+      setCfg(DEFAULT_CONFIG);
+      setSavedMsg("Reset!");
+      setTimeout(() => setSavedMsg(""), 2500);
+    }
+  };
 
   if (!cfg) return <div style={{ minHeight: "100vh", background: "#f5f3f0", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: sans }}>Loading...</div>;
 
